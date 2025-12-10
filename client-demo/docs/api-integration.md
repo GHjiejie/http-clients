@@ -51,7 +51,14 @@
 - `client-demo/src/api/generated/`：自动生成的请求/响应类型（勿手改）。
 - `client-demo/src/api/httpClient.ts`：请求封装（Axios 实例）。
 - `client-demo/src/api/client.ts`：HttpClient 单例配置。
-- `client-demo/src/api/services/`：按业务/服务划分的 API 方法与类型别名。
+- `client-demo/src/api/services/`：按业务/服务划分的 API 方法与类型别名：
+  - `console.ts`（登录/验证码/注销）
+  - `llmApps.ts`（无状态与会话对话）
+  - `doclibManage.ts`（知识库/文件管理）
+  - `dataProcess.ts`（解析任务 CRUD）
+  - `doclibRetrieveWorker.ts`（知识库检索）
+  - `embeddings.ts`（Embedding/Rerank）
+  - `fineTuningJob.ts`（微调任务）
 - `client-demo/src/App.vue`：页面示例。
 
 ## 7. 自定义与扩展
