@@ -3,7 +3,7 @@ import axios, {
   AxiosInstance,
   AxiosRequestConfig,
   AxiosResponse,
-  InternalAxiosRequestConfig
+  InternalAxiosRequestConfig,
 } from "axios";
 
 export interface RequestContext {
@@ -11,6 +11,19 @@ export interface RequestContext {
   startedAt: number;
   config: InternalAxiosRequestConfig;
 }
+/**
+ * HTTP 客户端配置选项
+ * @param baseURL 基础 URL
+ * @param timeout 请求超时时间，单位毫秒
+ * @param defaultHeaders 默认请求头
+ * @param getAuthToken 获取认证令牌的函数
+ * @param cancelDuplicate 是否取消重复请求
+ * @param unwrapResponse 解包响应数据的函数
+ * @param onRequest 请求发送前的回调
+ * @param onResponse 响应接收后的回调
+ * @param onError 请求出错时的回调
+ * @param onFinally 请求完成后的回调
+ */
 
 export interface HttpClientOptions {
   baseURL?: string;
@@ -25,7 +38,8 @@ export interface HttpClientOptions {
   onFinally?: (context: RequestContext, outcome: "success" | "error") => void;
 }
 
-export interface RequestConfig<TBody = unknown> extends AxiosRequestConfig<TBody> {
+export interface RequestConfig<TBody = unknown>
+  extends AxiosRequestConfig<TBody> {
   requestId?: string;
 }
 
@@ -34,7 +48,12 @@ export class HttpError<T = unknown> extends Error {
   data?: T;
   config: AxiosRequestConfig;
 
-  constructor(message: string, config: AxiosRequestConfig, status?: number, data?: T) {
+  constructor(
+    message: string,
+    config: AxiosRequestConfig,
+    status?: number,
+    data?: T
+  ) {
     super(message);
     this.name = "HttpError";
     this.config = config;
@@ -54,13 +73,15 @@ export class HttpClient {
     this.instance = axios.create({
       baseURL: options.baseURL,
       timeout: options.timeout ?? 10000,
-      headers: options.defaultHeaders
+      headers: options.defaultHeaders,
     });
 
     this.setupInterceptors();
   }
 
-  async request<TResponse = unknown, TBody = unknown>(config: RequestConfig<TBody>): Promise<TResponse> {
+  async request<TResponse = unknown, TBody = unknown>(
+    config: RequestConfig<TBody>
+  ): Promise<TResponse> {
     const response = await this.instance.request<TResponse>(config);
     return response.data;
   }
@@ -75,14 +96,14 @@ export class HttpClient {
       const normalized: EnrichedRequestConfig = {
         ...config,
         headers: {
-          ...(config.headers || {})
-        }
+          ...(config.headers || {}),
+        },
       };
 
       const ctx: RequestContext = {
         requestId: requestId ?? this.createRequestId(),
         startedAt: Date.now(),
-        config: normalized
+        config: normalized,
       };
 
       normalized.headers["X-Request-Id"] = ctx.requestId;
@@ -107,10 +128,14 @@ export class HttpClient {
 
     this.instance.interceptors.response.use(
       (response) => {
-        const ctx = this.resolveContext(response.config as EnrichedRequestConfig);
+        const ctx = this.resolveContext(
+          response.config as EnrichedRequestConfig
+        );
         this.clearPending(response.config);
 
-        const payload = this.options.unwrapResponse ? this.options.unwrapResponse(response.data) : response.data;
+        const payload = this.options.unwrapResponse
+          ? this.options.unwrapResponse(response.data)
+          : response.data;
         const normalized = { ...response, data: payload };
         this.options.onResponse?.(normalized, ctx);
         this.options.onFinally?.(ctx, "success");
@@ -124,7 +149,9 @@ export class HttpClient {
         const sanitizedConfig = { ...(config || {}) };
         // 避免循环引用导致的堆栈溢出
         if (HttpClient.metadataKey in sanitizedConfig) {
-          delete (sanitizedConfig as Record<string, unknown>)[HttpClient.metadataKey];
+          delete (sanitizedConfig as Record<string, unknown>)[
+            HttpClient.metadataKey
+          ];
         }
 
         const httpError = new HttpError(
@@ -174,7 +201,9 @@ export class HttpClient {
     const fallback: RequestContext = {
       requestId: this.createRequestId(),
       startedAt: Date.now(),
-      config: (config as InternalAxiosRequestConfig) || ({} as InternalAxiosRequestConfig)
+      config:
+        (config as InternalAxiosRequestConfig) ||
+        ({} as InternalAxiosRequestConfig),
     };
 
     const ctx = config?.[HttpClient.metadataKey];
