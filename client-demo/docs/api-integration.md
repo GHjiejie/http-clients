@@ -1,18 +1,23 @@
 # API 集成与类型使用说明
 
 ## 1. 类型来源与生成
-- 来源：`protocols/gen/swagger/pb/**/api.swagger.openapi3.json`（OpenAPI 3.0 规范）。
-- 生成脚本：`protocols/tools/gen-types.sh`（默认输出 `client-demo/src/api/generated`）。
+- 来源：`protocols/gen/swagger/pb/**/api.swagger.openapi3.json`（OpenAPI 3.0 规范，需要显式传入目录）。
+- 生成脚本：`client-demo/tools/gen-types.sh`（输出 `client-demo/src/api/generated`）。
 - 快捷命令（需联网安装依赖）：
   ```bash
   cd client-demo
   npm install
-  npm run gen:types      # 调用 ../protocols/tools/gen-types.sh
+  npm run gen:types      # 默认读取 client-demo/.gen-types.env 的 SRC（可用 ENV_FILE 覆盖）
+  # 或: npm run gen:types -- --src ../protocols/gen/swagger/pb 覆盖默认
+  # 远程示例: npm run gen:types -- --src "https://code.qianshi.cn/archer/protocols/src/branch/v0.12-kps/gen/swagger/pb"
   ```
 - 脚本默认使用 `npx openapi-typescript` 将每个服务的 spec 转为 TypeScript 类型；可通过环境变量覆盖：
   - `DEST=...` 更改输出目录
   - `GENERATOR="pnpm dlx openapi-typescript"` 替换执行器
-  - 修改 `protocols/tools/gen-types.sh` 的 `SERVICES` 数组增删服务
+  - `SRC` 可通过 env/参数/默认值提供；不指定则使用 env 中的默认路径
+  - 若 `SRC` 是 Git 仓库且落后上游，会提示先手动 `git pull` 后再生成
+  - 默认从 `client-demo/.gen-types.env` 读取 `SRC`（可用 `ENV_FILE` 覆盖）
+  - 修改 `client-demo/tools/gen-types.sh` 的 `SERVICES` 数组增删服务
 
 生成后，每个服务会对应一个 `.ts` 类型文件，例如 `client-demo/src/api/generated/console.ts`，其中导出了 `paths`/`components` 等类型映射。
 
@@ -47,7 +52,7 @@
 - 过程：表单收集 `LoginRequest` 字段 -> 调用 `consoleApi.login(form)` -> 收到 `LoginResponse` 显示结果；加载/错误状态由组件自身管理。
 
 ## 6. 目录速览
-- `protocols/tools/gen-types.sh`：类型生成脚本（读取 specs，调用 openapi-typescript）。
+- `client-demo/tools/gen-types.sh`：类型生成脚本（读取 specs，调用 openapi-typescript）。
 - `client-demo/src/api/generated/`：自动生成的请求/响应类型（勿手改）。
 - `client-demo/src/api/httpClient.ts`：请求封装（Axios 实例）。
 - `client-demo/src/api/client.ts`：HttpClient 单例配置。
@@ -63,7 +68,7 @@
 
 ## 7. 自定义与扩展
 - 新增接口：仅需在服务层引入对应 `paths` 类型并封装方法，无需手写 DTO。
-- 新增服务：在 `protocols/tools/gen-types.sh` 的 `SERVICES` 中添加服务子目录，重新运行 `npm run gen:types`。
+- 新增服务：在 `client-demo/tools/gen-types.sh` 的 `SERVICES` 中添加服务子目录，重新运行 `npm run gen:types`。
 - 运行时校验：如需数据校验，可在 `unwrapResponse` 后接入 Zod/自定义校验，保持类型与数据一致性。
 
 ## 8. 仅提供远程协议仓库/接口文档时的处理方式
@@ -71,7 +76,7 @@
 - 方法 A（推荐，便于版本固定）：拉取/下载仓库到本地任意路径，生成时指定源目录：
   ```bash
   # 假设克隆到 ../protocols-remote
-  SRC=../protocols-remote/gen/swagger/pb DEST=./src/api/generated bash ../protocols/tools/gen-types.sh
+  SRC=../protocols-remote/gen/swagger/pb DEST=./src/api/generated bash ../client-demo/tools/gen-types.sh
   ```
   或直接把远程仓库作为 git submodule，挂在 `protocols` 目录，脚本无需改动。
 - 方法 B（直接用线上 OpenAPI URL，适用于单个接口文档已发布的情况）：

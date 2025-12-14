@@ -7,6 +7,9 @@ export type KnowledgeBaseListResponse = DoclibComponents["schemas"]["doclib_mana
 export type KnowledgeBaseListQuery = DoclibPaths["/v1/knowledge-bases"]["get"]["parameters"]["query"];
 export type KnowledgeBaseNewRequest =
   DoclibPaths["/v1/knowledge-bases"]["post"]["requestBody"]["content"]["application/json"];
+export type KnowledgeBaseUpdateRequest =
+  DoclibPaths["/v1/knowledge-bases/{knowledge_base_id}"]["post"]["requestBody"]["content"]["application/json"];
+export type KnowledgeBaseDeleteResponse = DoclibComponents["schemas"]["doclib_manager_serviceKnowledgeBaseDeleteResponse"];
 
 export type KnowledgeBaseFile = DoclibComponents["schemas"]["doclib_manager_serviceKnowledgeBaseFile"];
 export type KnowledgeBaseFileListResponse =
@@ -15,6 +18,8 @@ export type KnowledgeBaseFileListQuery =
   DoclibPaths["/v1/knowledge-bases/{knowledge_base_id}/files"]["get"]["parameters"]["query"];
 export type KnowledgeBaseFileAddRequest =
   DoclibPaths["/v1/knowledge-bases/{knowledge_base_id}/files"]["post"]["requestBody"]["content"]["application/json"];
+export type KnowledgeBaseFileDeleteResponse =
+  DoclibComponents["schemas"]["doclib_manager_serviceKnowledgeBaseFileDeleteResponse"];
 
 export const doclibManageApi = {
   listKnowledgeBases(params?: KnowledgeBaseListQuery, options?: ServiceRequestOptions) {
@@ -43,6 +48,23 @@ export const doclibManageApi = {
     });
   },
 
+  updateKnowledgeBase(knowledgeBaseId: string, payload: KnowledgeBaseUpdateRequest, options?: ServiceRequestOptions) {
+    return httpClient.request<KnowledgeBase, KnowledgeBaseUpdateRequest>({
+      method: "POST",
+      url: `/v1/knowledge-bases/${knowledgeBaseId}`,
+      data: payload,
+      ...withBaseURL(options)
+    });
+  },
+
+  deleteKnowledgeBase(knowledgeBaseId: string, options?: ServiceRequestOptions) {
+    return httpClient.request<KnowledgeBaseDeleteResponse>({
+      method: "DELETE",
+      url: `/v1/knowledge-bases/${knowledgeBaseId}`,
+      ...withBaseURL(options)
+    });
+  },
+
   listKnowledgeBaseFiles(knowledgeBaseId: string, params?: KnowledgeBaseFileListQuery, options?: ServiceRequestOptions) {
     return httpClient.request<KnowledgeBaseFileListResponse>({
       method: "GET",
@@ -57,6 +79,22 @@ export const doclibManageApi = {
       method: "POST",
       url: `/v1/knowledge-bases/${knowledgeBaseId}/files`,
       data: payload,
+      ...withBaseURL(options)
+    });
+  },
+
+  getKnowledgeBaseFile(knowledgeBaseId: string, fileId: string, options?: ServiceRequestOptions) {
+    return httpClient.request<KnowledgeBaseFile>({
+      method: "GET",
+      url: `/v1/knowledge-bases/${knowledgeBaseId}/files/${fileId}`,
+      ...withBaseURL(options)
+    });
+  },
+
+  deleteKnowledgeBaseFile(knowledgeBaseId: string, fileId: string, options?: ServiceRequestOptions) {
+    return httpClient.request<KnowledgeBaseFileDeleteResponse>({
+      method: "DELETE",
+      url: `/v1/knowledge-bases/${knowledgeBaseId}/files/${fileId}`,
       ...withBaseURL(options)
     });
   }

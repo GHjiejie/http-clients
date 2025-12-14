@@ -7,13 +7,16 @@ const defaultUnwrap = (payload: unknown) => {
   return payload;
 };
 
+const defaultBaseURL = (import.meta as any).env?.VITE_API_BASE_URL ?? "http://10.166.81.57:30099/";
+const defaultToken = (import.meta as any).env?.VITE_API_TOKEN;
+
 export const httpClient = new HttpClient({
-  baseURL: (import.meta as any).env?.VITE_API_BASE_URL ?? "http://localhost:8080",
+  baseURL: defaultBaseURL,
   timeout: 12000,
-  cancelDuplicate: true,
+  cancelDuplicate: false,
   unwrapResponse: defaultUnwrap,
   getAuthToken: () => {
-    return localStorage.getItem("token") ?? undefined;
+    return defaultToken || undefined;
   },
   onRequest: (ctx) => {
     console.debug(`[request] ${ctx.requestId}`, ctx.config.method, ctx.config.url);

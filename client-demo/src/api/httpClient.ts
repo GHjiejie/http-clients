@@ -121,9 +121,15 @@ export class HttpClient {
         const ctx = this.resolveContext(config);
         this.clearPending(config);
 
+        const sanitizedConfig = { ...(config || {}) };
+        // 避免循环引用导致的堆栈溢出
+        if (HttpClient.metadataKey in sanitizedConfig) {
+          delete (sanitizedConfig as Record<string, unknown>)[HttpClient.metadataKey];
+        }
+
         const httpError = new HttpError(
           error.message,
-          config || {},
+          sanitizedConfig,
           error.response?.status,
           error.response?.data
         );
@@ -151,8 +157,9 @@ export class HttpClient {
   private buildKey(config: AxiosRequestConfig) {
     const url = config.url || "";
     const method = (config.method || "get").toLowerCase();
-    const params = config.params ? JSON.stringify(config.params) : "";
-    const data = config.data ? JSON.stringify(config.data) : "";
+    // 避免循环结构导致的堆栈溢出，直接跳过复杂序列化
+    const params = config.params ? "[params]" : "";
+    const data = config.data ? "[data]" : "";
     return `${method}:${url}?${params}&${data}`;
   }
 
@@ -171,7 +178,12 @@ export class HttpClient {
     };
 
     const ctx = config?.[HttpClient.metadataKey];
-    return ctx || fallback;
+    if (ctx) {
+      // 避免后续引用产生循环
+      delete (config as Record<string, unknown>)[HttpClient.metadataKey];
+      return ctx;
+    }
+    return fallback;
   }
 }
 

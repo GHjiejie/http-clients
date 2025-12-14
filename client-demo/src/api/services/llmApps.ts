@@ -1,5 +1,5 @@
 import { httpClient } from "../client";
-import type { paths as LlmPaths } from "../generated/llm-apps_chatbot";
+import type { components as LlmComponents, paths as LlmPaths } from "../generated/llm-apps_chatbot";
 import { withBaseURL, type ServiceRequestOptions } from "./shared";
 
 export type ChatCompletionsRequest =
@@ -30,6 +30,8 @@ export type ConversationsMessagesResponse =
 
 export type ConversationsResponse =
   LlmPaths["/v1/llm/chat/{user_id}/sessions"]["get"]["responses"]["200"]["content"]["application/json"];
+export type Conversation = LlmComponents["schemas"]["ConversationsResponseConversation"];
+export type ConversationMessage = LlmComponents["schemas"]["ConversationsMessagesResponseMessage"];
 
 export const llmAppsApi = {
   chatCompletions(payload: ChatCompletionsRequest, options?: ServiceRequestOptions) {
