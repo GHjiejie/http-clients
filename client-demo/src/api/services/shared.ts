@@ -1,7 +1,15 @@
 export interface ServiceRequestOptions {
   baseURL?: string;
+  showGlobalLoading?: boolean;
 }
 
 export const withBaseURL = (options?: ServiceRequestOptions) => {
-  return options?.baseURL ? { baseURL: options.baseURL } : {};
+  const result: Record<string, unknown> = {};
+  if (options?.baseURL) {
+    result.baseURL = options.baseURL;
+  }
+  if (options?.showGlobalLoading !== undefined) {
+    result.showGlobalLoading = options.showGlobalLoading;
+  }
+  return result;
 };

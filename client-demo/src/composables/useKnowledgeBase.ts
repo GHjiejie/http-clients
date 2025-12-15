@@ -35,7 +35,7 @@ export const useKnowledgeBase = () => {
     knowledgeBaseLoading.value = true;
     knowledgeBaseError.value = "";
     try {
-      const res = await doclibManageApi.listKnowledgeBases();
+      const res = await doclibManageApi.listKnowledgeBases(undefined, { showGlobalLoading: true });
       knowledgeBases.value = res.data ?? [];
       if (
         selectedKnowledgeBaseId.value &&
@@ -63,7 +63,7 @@ export const useKnowledgeBase = () => {
         name: name.trim(),
         description: description?.trim() || undefined
       };
-      const kb = await doclibManageApi.createKnowledgeBase(payload);
+      const kb = await doclibManageApi.createKnowledgeBase(payload, { showGlobalLoading: true });
       knowledgeBases.value = [kb, ...knowledgeBases.value];
     } catch (error) {
       knowledgeBaseError.value = toMessage(error);
@@ -77,7 +77,7 @@ export const useKnowledgeBase = () => {
     knowledgeBaseSaving.value = true;
     knowledgeBaseError.value = "";
     try {
-      const kb = await doclibManageApi.updateKnowledgeBase(id, payload);
+      const kb = await doclibManageApi.updateKnowledgeBase(id, payload, { showGlobalLoading: true });
       knowledgeBases.value = knowledgeBases.value.map((item) => (item.id === kb.id ? kb : item));
     } catch (error) {
       knowledgeBaseError.value = toMessage(error);
@@ -91,7 +91,7 @@ export const useKnowledgeBase = () => {
     knowledgeBaseSaving.value = true;
     knowledgeBaseError.value = "";
     try {
-      await doclibManageApi.deleteKnowledgeBase(id);
+      await doclibManageApi.deleteKnowledgeBase(id, { showGlobalLoading: true });
       knowledgeBases.value = knowledgeBases.value.filter((kb) => kb.id !== id);
       if (selectedKnowledgeBaseId.value === id) {
         selectedKnowledgeBaseId.value = null;
@@ -117,7 +117,7 @@ export const useKnowledgeBase = () => {
     fileLoading.value = true;
     fileError.value = "";
     try {
-      const res = await doclibManageApi.listKnowledgeBaseFiles(knowledgeBaseId);
+      const res = await doclibManageApi.listKnowledgeBaseFiles(knowledgeBaseId, undefined, { showGlobalLoading: true });
       knowledgeBaseFiles.value = res.data ?? [];
     } catch (error) {
       fileError.value = toMessage(error);
@@ -136,7 +136,7 @@ export const useKnowledgeBase = () => {
     fileError.value = "";
     try {
       const payload = { file_id: fileId.trim() };
-      const file = await doclibManageApi.addKnowledgeBaseFile(knowledgeBaseId, payload);
+      const file = await doclibManageApi.addKnowledgeBaseFile(knowledgeBaseId, payload, { showGlobalLoading: true });
       const exists = knowledgeBaseFiles.value.find((item) => item.file_id === file.file_id);
       if (exists) {
         knowledgeBaseFiles.value = knowledgeBaseFiles.value.map((item) =>
@@ -157,7 +157,7 @@ export const useKnowledgeBase = () => {
     fileLoading.value = true;
     fileError.value = "";
     try {
-      await doclibManageApi.deleteKnowledgeBaseFile(knowledgeBaseId, fileId);
+      await doclibManageApi.deleteKnowledgeBaseFile(knowledgeBaseId, fileId, { showGlobalLoading: true });
       knowledgeBaseFiles.value = knowledgeBaseFiles.value.filter((file) => file.file_id !== fileId);
     } catch (error) {
       fileError.value = toMessage(error);

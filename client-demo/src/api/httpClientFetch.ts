@@ -26,6 +26,7 @@ export interface RequestConfig<TBody = unknown> extends RequestInit {
   data?: TBody;
   requestId?: string;
   timeout?: number;
+  showGlobalLoading?: boolean;
 }
 
 export interface HttpResponse<T = unknown> {
@@ -72,6 +73,7 @@ export class HttpClient {
       baseURL: _baseURL,
       requestId: _requestId,
       timeout: _timeout,
+      showGlobalLoading: _showGlobalLoading,
       ...init
     } = restConfig;
 

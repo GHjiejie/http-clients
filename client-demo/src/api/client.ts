@@ -7,6 +7,7 @@ interface Trace {
   url?: string;
   method?: string;
   startedAt: number;
+  showLoading: boolean;
 }
 
 interface Stats {
@@ -86,11 +87,13 @@ export const httpClient = new HttpClient({
     return defaultToken || undefined;
   },
   onRequest: (ctx) => {
+    const showLoading = ctx.config.showGlobalLoading === true;
     startTrace({
       id: ctx.requestId,
       url: ctx.config.url,
       method: ctx.config.method,
-      startedAt: ctx.startedAt
+      startedAt: ctx.startedAt,
+      showLoading
     });
   },
   onResponse: (response, ctx) => {

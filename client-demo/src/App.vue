@@ -8,6 +8,7 @@ import UserCard from "./components/UserCard.vue";
 import type { KnowledgeBaseUpdateRequest } from "./api/services/doclibManage";
 import { useKnowledgeBase } from "./composables/useKnowledgeBase";
 import { useSessions } from "./composables/useSessions";
+import GlobalLoadingOverlay from "./components/GlobalLoadingOverlay.vue";
 
 const baseURL = (import.meta as any).env?.VITE_API_BASE_URL ?? "未配置";
 const envToken = (import.meta as any).env?.VITE_API_TOKEN ?? "";
@@ -141,6 +142,7 @@ const handleDeleteFile = async (payload: { knowledgeBaseId: string; fileId: stri
 
 <template>
   <div class="app-shell">
+    <GlobalLoadingOverlay />
     <aside class="sidebar">
       <SidebarBrand />
       <div class="sidebar__section">

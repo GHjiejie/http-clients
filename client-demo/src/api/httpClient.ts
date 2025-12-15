@@ -9,7 +9,7 @@ import axios, {
 export interface RequestContext {
   requestId: string;
   startedAt: number;
-  config: InternalAxiosRequestConfig;
+  config: EnrichedRequestConfig;
 }
 /**
  * HTTP 客户端配置选项
@@ -41,6 +41,7 @@ export interface HttpClientOptions {
 export interface RequestConfig<TBody = unknown>
   extends AxiosRequestConfig<TBody> {
   requestId?: string;
+  showGlobalLoading?: boolean;
 }
 
 export class HttpError<T = unknown> extends Error {
@@ -217,5 +218,6 @@ export class HttpClient {
 }
 
 type EnrichedRequestConfig = InternalAxiosRequestConfig & {
+  showGlobalLoading?: boolean;
   [HttpClient.metadataKey]?: RequestContext;
 };
